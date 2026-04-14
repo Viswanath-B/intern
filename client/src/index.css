@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-family: "Manrope", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(59, 130, 246, 0.12), transparent 28%),
+    radial-gradient(circle at 80% 20%, rgba(79, 70, 229, 0.1), transparent 24%),
+    linear-gradient(180deg, #f8fbff 0%, #eef5ff 48%, #ffffff 100%);
+  color: #0f172a;
+}
+
+h1,
+h2,
+h3,
+h4,
+.font-display {
+  font-family: "Space Grotesk", sans-serif;
+  letter-spacing: -0.03em;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: rgba(37, 99, 235, 0.18);
+  color: #0f172a;
+}
+
+@layer components {
+  .section-shell {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .card-shell {
+    @apply rounded-[28px] border border-slate-200/80 bg-white/85 shadow-premium backdrop-blur-xl;
+  }
+
+  .field-label {
+    @apply text-sm font-semibold text-slate-700;
+  }
+
+  .field-input {
+    @apply mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-4 focus:ring-blue-100;
+  }
+
+  .field-select {
+    @apply mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100;
+  }
+
+  .field-error {
+    @apply mt-2 text-sm text-rose-600;
+  }
+
+  .primary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-slate-950 px-6 py-3 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-slate-800 focus:outline-none focus:ring-4 focus:ring-slate-300 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .secondary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-slate-200 bg-white px-6 py-3 text-sm font-semibold text-slate-800 transition hover:-translate-y-0.5 hover:border-blue-200 hover:bg-blue-50 focus:outline-none focus:ring-4 focus:ring-blue-100;
+  }
+}
