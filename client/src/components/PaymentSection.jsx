@@ -262,6 +262,7 @@ export function PaymentSection({ amount, baseAmount, fullAmount, amountType, onA
               <p>In training based internship you will not get an experience letter from the company
               <p>Payment receipts must be uploaded after completion of the transaction.</p>.</p>
               <p>By accepting, you confirm that the details entered in the application form are accurate.</p>
+              <p>Once payment is done the amount is non refundable.</p>
             </div>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
