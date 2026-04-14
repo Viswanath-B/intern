@@ -19,7 +19,10 @@ function getTransportOptions() {
     auth: {
       user,
       pass
-    }
+    },
+    connectionTimeout: 10000, // 10 seconds
+    greetingTimeout: 10000,
+    socketTimeout: 15000
   };
 }
 
@@ -57,45 +60,53 @@ export async function sendApplicationConfirmationEmail({ to, fullName, internshi
   const experienceNote = role === "Work Based" ? "You will receive an experience letter from the company." : "You have opted for a training-based internship track.";
   const fromAddress = getFromAddress(companyName);
 
-  await transport.sendMail({
-    from: fromAddress,
-    to,
-    subject: `${companyName} Internship Application Received`,
-    text: [
-      `Hello ${fullName},`,
-      "",
-      `We have received your application for ${internshipLabel}.`,
-      `Mode: ${modeLabel}`,
-      `Domain: ${domain}`,
-      `Role: ${role}`,
-      `Roll No: ${rollNo}`,
-      `College: ${collegeName}`,
-      `City: ${city}`,
-      "",
-      experienceNote,
-      "",
-      `Thank you for applying with ${companyName}.`
-    ].join("\n"),
-    html: `
-      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a; background: #f8fafc; padding: 24px;">
-        <div style="max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 24px; padding: 32px; border: 1px solid #e2e8f0;">
-          <p style="text-transform: uppercase; letter-spacing: 0.24em; font-size: 12px; color: #2563eb; font-weight: 700;">Application received</p>
-          <h1 style="margin: 12px 0 16px; font-size: 28px; color: #020617;">Thank you for applying, ${fullName}</h1>
-          <p style="margin: 0 0 24px; color: #475569;">We have received your application for <strong>${internshipLabel}</strong>.</p>
-          <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #0f172a;">
-            <tr><td style="padding: 8px 0; color: #64748b; width: 180px;">Mode</td><td style="padding: 8px 0;">${modeLabel}</td></tr>
-            <tr><td style="padding: 8px 0; color: #64748b;">Domain</td><td style="padding: 8px 0;">${domain}</td></tr>
-            <tr><td style="padding: 8px 0; color: #64748b;">Role</td><td style="padding: 8px 0;">${role}</td></tr>
-            <tr><td style="padding: 8px 0; color: #64748b;">Roll No</td><td style="padding: 8px 0;">${rollNo}</td></tr>
-            <tr><td style="padding: 8px 0; color: #64748b;">College</td><td style="padding: 8px 0;">${collegeName}</td></tr>
-            <tr><td style="padding: 8px 0; color: #64748b;">City</td><td style="padding: 8px 0;">${city}</td></tr>
-          </table>
-          <div style="margin-top: 24px; padding: 16px 18px; border-radius: 18px; background: #eff6ff; color: #1d4ed8; font-weight: 600;">${experienceNote}</div>
-          <p style="margin-top: 24px; color: #475569;">Thank you for applying with ${companyName}.</p>
+  console.log(`[Email] Attempting to send confirmation email to: ${to}`);
+  
+  try {
+    await transport.sendMail({
+      from: fromAddress,
+      to,
+      subject: `${companyName} Internship Application Received`,
+      text: [
+        `Hello ${fullName},`,
+        "",
+        `We have received your application for ${internshipLabel}.`,
+        `Mode: ${modeLabel}`,
+        `Domain: ${domain}`,
+        `Role: ${role}`,
+        `Roll No: ${rollNo}`,
+        `College: ${collegeName}`,
+        `City: ${city}`,
+        "",
+        experienceNote,
+        "",
+        `Thank you for applying with ${companyName}.`
+      ].join("\n"),
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #0f172a; background: #f8fafc; padding: 24px;">
+          <div style="max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 24px; padding: 32px; border: 1px solid #e2e8f0;">
+            <p style="text-transform: uppercase; letter-spacing: 0.24em; font-size: 12px; color: #2563eb; font-weight: 700;">Application received</p>
+            <h1 style="margin: 12px 0 16px; font-size: 28px; color: #020617;">Thank you for applying, ${fullName}</h1>
+            <p style="margin: 0 0 24px; color: #475569;">We have received your application for <strong>${internshipLabel}</strong>.</p>
+            <table style="width: 100%; border-collapse: collapse; font-size: 14px; color: #0f172a;">
+              <tr><td style="padding: 8px 0; color: #64748b; width: 180px;">Mode</td><td style="padding: 8px 0;">${modeLabel}</td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;">Domain</td><td style="padding: 8px 0;">${domain}</td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;">Role</td><td style="padding: 8px 0;">${role}</td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;">Roll No</td><td style="padding: 8px 0;">${rollNo}</td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;">College</td><td style="padding: 8px 0;">${collegeName}</td></tr>
+              <tr><td style="padding: 8px 0; color: #64748b;">City</td><td style="padding: 8px 0;">${city}</td></tr>
+            </table>
+            <div style="margin-top: 24px; padding: 16px 18px; border-radius: 18px; background: #eff6ff; color: #1d4ed8; font-weight: 600;">${experienceNote}</div>
+            <p style="margin-top: 24px; color: #475569;">Thank you for applying with ${companyName}.</p>
+          </div>
         </div>
-      </div>
-    `
-  });
+      `
+    });
+    console.log(`[Email] Confirmation email sent successfully to: ${to}`);
+  } catch (error) {
+    console.error(`[Email] Error sending email to ${to}:`, error.message);
+    throw error;
+  }
 
   return { skipped: false };
 }

@@ -56,30 +56,23 @@ export async function createApplication(request, response, next) {
       paymentScreenshot: buildPublicFileUrl(request, request.file.filename)
     });
 
-    let emailSent = false;
-
-    try {
-      const emailResult = await sendApplicationConfirmationEmail({
-        to: payload.data.email,
-        fullName: payload.data.fullName,
-        internshipType: payload.data.internshipType,
-        internshipMode: payload.data.internshipMode,
-        domain: payload.data.domain,
-        role: payload.data.role,
-        rollNo: payload.data.rollNo,
-        collegeName: payload.data.collegeName,
-        city: payload.data.city
-      });
-
-      emailSent = !emailResult?.skipped;
-    } catch (mailError) {
-      console.error("Confirmation email failed:", mailError.message);
-    }
+    // Send confirmation email in the background without blocking the response
+    sendApplicationConfirmationEmail({
+      to: payload.data.email,
+      fullName: payload.data.fullName,
+      internshipType: payload.data.internshipType,
+      internshipMode: payload.data.internshipMode,
+      domain: payload.data.domain,
+      role: payload.data.role,
+      rollNo: payload.data.rollNo,
+      collegeName: payload.data.collegeName,
+      city: payload.data.city
+    }).catch((mailError) => {
+      console.error("Background confirmation email failed:", mailError.message);
+    });
 
     response.status(201).json({
-      message: emailSent
-        ? "Application submitted successfully. Confirmation email sent."
-        : "Application submitted successfully.",
+      message: "Application submitted successfully. A confirmation email will be sent to your address shortly.",
       application
     });
   } catch (error) {
