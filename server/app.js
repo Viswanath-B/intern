@@ -24,7 +24,7 @@ app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(
   cors({
     origin(origin, callback) {
-      if (!origin || allowedOrigins.includes(origin) || localNetworkOriginPattern.test(origin)) {
+      if (!origin || allowedOrigins.includes(origin) || localNetworkOriginPattern.test(origin) || origin.endsWith(".onrender.com")) {
         callback(null, true);
         return;
       }
