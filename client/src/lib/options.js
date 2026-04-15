@@ -8,9 +8,10 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 export const SERVER_PORT = Number(import.meta.env.VITE_SERVER_PORT || 5000);   
 export const SHORT_TERM_BASE_FEE = Number(import.meta.env.VITE_SHORT_TERM_BASE_FEE || 1694);
 export const SHORT_TERM_FULL_FEE = Number(import.meta.env.VITE_SHORT_TERM_FULL_FEE || 1999);
+export const SHORT_TERM_ONLINE_FEE = Number(import.meta.env.VITE_SHORT_TERM_ONLINE_FEE || 300);
 export const LONG_TERM_BASE_FEE = Number(import.meta.env.VITE_LONG_TERM_BASE_FEE || 2965);
 export const LONG_TERM_FULL_FEE = Number(import.meta.env.VITE_LONG_TERM_FULL_FEE || 3499);
-export const CERTIFICATE_FEE = 300;
+export const LONG_TERM_ONLINE_FEE = Number(import.meta.env.VITE_LONG_TERM_ONLINE_FEE || 999);
 export const GST_RATE = 0.18;
 
 // Removed legacy overrides VITE_BASE_AMOUNT and VITE_FULL_AMOUNT
@@ -46,6 +47,7 @@ export const INTERNSHIP_DETAILS = {
     duration: "2 months",
     baseFee: SHORT_TERM_BASE_FEE,
     fullFee: SHORT_TERM_FULL_FEE,
+    onlineFee: SHORT_TERM_ONLINE_FEE,
     route: "/apply/short-term",
     accent: "from-cyan-500 via-blue-500 to-indigo-600",
     summary:
@@ -58,6 +60,7 @@ export const INTERNSHIP_DETAILS = {
     duration: "4 months",
     baseFee: LONG_TERM_BASE_FEE,
     fullFee: LONG_TERM_FULL_FEE,
+    onlineFee: LONG_TERM_ONLINE_FEE,
     route: "/apply/long-term",
     accent: "from-indigo-600 via-blue-600 to-sky-500",
     summary:
@@ -66,11 +69,13 @@ export const INTERNSHIP_DETAILS = {
 };
 
 export function calculatePayableAmount({ internshipMode, internshipType }) {
+  const details = INTERNSHIP_DETAILS[internshipType];
+
   if (internshipMode === "online") {
-    return CERTIFICATE_FEE;
+    return details?.onlineFee || 300;
   }
 
-  const baseAmount = INTERNSHIP_DETAILS[internshipType]?.fee || SHORT_TERM_FEE;
+  const baseAmount = details?.baseFee || SHORT_TERM_BASE_FEE;
   return Math.round(baseAmount * (1 + GST_RATE));
 }
 
