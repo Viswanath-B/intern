@@ -6,22 +6,14 @@ export const UPI_ID = import.meta.env.VITE_UPI_ID || "spheronixlabs@upi";
 export const UPI_PAYEE_NAME = import.meta.env.VITE_UPI_PAYEE_NAME || COMPANY_NAME;
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 export const SERVER_PORT = Number(import.meta.env.VITE_SERVER_PORT || 5000);   
-export const SHORT_TERM_FEE = Number(import.meta.env.VITE_SHORT_TERM_FEE || 1999);
-export const LONG_TERM_FEE = Number(import.meta.env.VITE_LONG_TERM_FEE || 3499);
+export const SHORT_TERM_BASE_FEE = Number(import.meta.env.VITE_SHORT_TERM_BASE_FEE || 1694);
+export const SHORT_TERM_FULL_FEE = Number(import.meta.env.VITE_SHORT_TERM_FULL_FEE || 1999);
+export const LONG_TERM_BASE_FEE = Number(import.meta.env.VITE_LONG_TERM_BASE_FEE || 2965);
+export const LONG_TERM_FULL_FEE = Number(import.meta.env.VITE_LONG_TERM_FULL_FEE || 3499);
 export const CERTIFICATE_FEE = 300;
 export const GST_RATE = 0.18;
 
-function parseOptionalAmount(value) {
-  if (value === undefined || value === null || String(value).trim() === "") {
-    return null;
-  }
-
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-export const BASE_AMOUNT_OVERRIDE = parseOptionalAmount(import.meta.env.VITE_BASE_AMOUNT);
-export const FULL_AMOUNT_OVERRIDE = parseOptionalAmount(import.meta.env.VITE_FULL_AMOUNT);
+// Removed legacy overrides VITE_BASE_AMOUNT and VITE_FULL_AMOUNT
 
 export const INTERNSHIP_MODE_OPTIONS = [
   { label: "Online", value: "online" },
@@ -52,7 +44,8 @@ export const INTERNSHIP_DETAILS = {
     slug: "short-term",
     title: "Short-Term Internship",
     duration: "2 months",
-    fee: SHORT_TERM_FEE,
+    baseFee: SHORT_TERM_BASE_FEE,
+    fullFee: SHORT_TERM_FULL_FEE,
     route: "/apply/short-term",
     accent: "from-cyan-500 via-blue-500 to-indigo-600",
     summary:
@@ -63,7 +56,8 @@ export const INTERNSHIP_DETAILS = {
     slug: "long-term",
     title: "Long-Term Internship",
     duration: "4 months",
-    fee: LONG_TERM_FEE,
+    baseFee: LONG_TERM_BASE_FEE,
+    fullFee: LONG_TERM_FULL_FEE,
     route: "/apply/long-term",
     accent: "from-indigo-600 via-blue-600 to-sky-500",
     summary:
