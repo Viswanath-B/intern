@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { submitApplication } from "../lib/api";
-import { BASE_AMOUNT_OVERRIDE, CERTIFICATE_FEE, DOMAIN_OPTIONS, FULL_AMOUNT_OVERRIDE, GST_RATE, INTERNSHIP_DETAILS, INTERNSHIP_MODE_OPTIONS, ROLE_OPTIONS, formatCurrency } from "../lib/options";
+import { CERTIFICATE_FEE, DOMAIN_OPTIONS, GST_RATE, INTERNSHIP_DETAILS, INTERNSHIP_MODE_OPTIONS, ROLE_OPTIONS, formatCurrency } from "../lib/options";
 import { applicationFormSchema } from "../lib/validation";
 import { PaymentSection } from "./PaymentSection";
 import { ReceiptPreview } from "./ReceiptPreview";
@@ -80,10 +80,8 @@ export function ApplicationForm({ internshipType }) {
   const selectedFormMode = watch("internshipMode");
   const receiptFiles = watch("paymentScreenshot");
   const selectedReceipt = receiptFiles?.[0] || null;
-  const computedBaseAmount = selectedMode === "online" ? CERTIFICATE_FEE : program.fee;
-  const computedFullAmount = selectedMode === "online" ? CERTIFICATE_FEE : Math.round(program.fee * (1 + GST_RATE));
-  const baseAmount = BASE_AMOUNT_OVERRIDE ?? computedBaseAmount;
-  const fullAmount = FULL_AMOUNT_OVERRIDE ?? computedFullAmount;
+  const baseAmount = selectedMode === "online" ? CERTIFICATE_FEE : program.baseFee;
+  const fullAmount = selectedMode === "online" ? CERTIFICATE_FEE : program.fullFee;
   const payableAmount = amountType === "base" ? baseAmount : fullAmount;
   const invalidFields = Object.entries(errors)
     .map(([field, error]) => ({
@@ -160,6 +158,12 @@ export function ApplicationForm({ internshipType }) {
     selectedFormMode,
     selectedFormRole
   ]);
+
+  useEffect(() => {
+    if (selectedMode === "online") {
+      setAmountType("full");
+    }
+  }, [selectedMode]);
 
   useEffect(() => {
     if (!selectedReceipt) {
