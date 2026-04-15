@@ -130,3 +130,41 @@ export async function exportApplications(request, response, next) {
     next(error);
   }
 }
+
+export async function testEmail(request, response) {
+  const testEmailAddress = request.query.to || process.env.SMTP_USER;
+  
+  try {
+    console.log(`[Test Email] Manually triggering test to: ${testEmailAddress}`);
+    await sendApplicationConfirmationEmail({
+      to: testEmailAddress,
+      fullName: "Test User",
+      internshipType: "short",
+      internshipMode: "online",
+      domain: "Test Domain",
+      role: "Work Based",
+      rollNo: "TEST001",
+      collegeName: "Test College",
+      city: "Test City"
+    });
+    
+    response.json({
+      success: true,
+      message: `Test email sent successfully to ${testEmailAddress}. Please check your inbox (including spam).`,
+      config: {
+        host: process.env.SMTP_HOST,
+        port: process.env.SMTP_PORT,
+        user: process.env.SMTP_USER,
+        from: process.env.EMAIL_FROM
+      }
+    });
+  } catch (error) {
+    console.error(`[Test Email] Failed:`, error.message);
+    response.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack,
+      details: "Check server logs for full stack trace."
+    });
+  }
+}
