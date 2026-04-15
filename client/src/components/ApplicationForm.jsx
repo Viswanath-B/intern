@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { submitApplication } from "../lib/api";
-import { CERTIFICATE_FEE, DOMAIN_OPTIONS, GST_RATE, INTERNSHIP_DETAILS, INTERNSHIP_MODE_OPTIONS, ROLE_OPTIONS, formatCurrency } from "../lib/options";
+import { DOMAIN_OPTIONS, GST_RATE, INTERNSHIP_DETAILS, INTERNSHIP_MODE_OPTIONS, ROLE_OPTIONS, formatCurrency } from "../lib/options";
 import { applicationFormSchema } from "../lib/validation";
 import { PaymentSection } from "./PaymentSection";
 import { ReceiptPreview } from "./ReceiptPreview";
@@ -80,8 +80,8 @@ export function ApplicationForm({ internshipType }) {
   const selectedFormMode = watch("internshipMode");
   const receiptFiles = watch("paymentScreenshot");
   const selectedReceipt = receiptFiles?.[0] || null;
-  const baseAmount = selectedMode === "online" ? CERTIFICATE_FEE : program.baseFee;
-  const fullAmount = selectedMode === "online" ? CERTIFICATE_FEE : program.fullFee;
+  const baseAmount = selectedMode === "online" ? program.onlineFee : program.baseFee;
+  const fullAmount = selectedMode === "online" ? program.onlineFee : program.fullFee;
   const payableAmount = amountType === "base" ? baseAmount : fullAmount;
   const invalidFields = Object.entries(errors)
     .map(([field, error]) => ({
@@ -355,7 +355,7 @@ export function ApplicationForm({ internshipType }) {
           <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-900">
             {selectedMode === "online" ? (
               <>
-                Online mode selected. Internship is free and only the certificate fee of {formatCurrency(CERTIFICATE_FEE)} applies.
+                Online mode selected. Internship is free and only the certificate fee of {formatCurrency(program.onlineFee)} applies.
               </>
             ) : (
               <>
