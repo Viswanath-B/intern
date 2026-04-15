@@ -136,7 +136,7 @@ export async function testEmail(request, response) {
   
   try {
     console.log(`[Test Email] Manually triggering test to: ${testEmailAddress}`);
-    await sendApplicationConfirmationEmail({
+    const result = await sendApplicationConfirmationEmail({
       to: testEmailAddress,
       fullName: "Test User",
       internshipType: "short",
@@ -149,12 +149,14 @@ export async function testEmail(request, response) {
     });
     
     response.json({
-      success: true,
-      message: `Test email sent successfully to ${testEmailAddress}. Please check your inbox (including spam).`,
+      success: !result.skipped,
+      driver: result.driver || "none",
+      message: result.skipped 
+        ? "Email sending was skipped. Check your environment variables." 
+        : `Test email sent successfully via ${result.driver} to ${testEmailAddress}. Please check your inbox (including spam).`,
       config: {
-        host: process.env.SMTP_HOST,
-        port: process.env.SMTP_PORT,
-        user: process.env.SMTP_USER,
+        using_resend: !!process.env.RESEND_API_KEY,
+        smtp_configured: !!process.env.SMTP_HOST,
         from: process.env.EMAIL_FROM
       }
     });
