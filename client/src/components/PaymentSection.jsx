@@ -256,13 +256,12 @@ export function PaymentSection({ amount, baseAmount, fullAmount, amountType, onA
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-blue-600">Terms & Conditions</p>
             <h4 className="mt-3 font-display text-2xl font-semibold text-slate-950">Please review before payment</h4>
             <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
-              <p>1. If you choose online internship the internship program is free. The certificate cost is 300₹.</p>
-              <p>2. If you choose offline internship the internship program cost is 4999₹ + GST. In this you can choose work based or training based internship.</p>
-              <p>3. In work based internship you will get an experience letter from the company.</p>
-              <p>4. In training based internship you will not get an experience letter from the company
-              <p>5. Payment receipts must be uploaded after completion of the transaction.</p>.</p>
-              <p>6. By accepting, you confirm that the details entered in the application form are accurate.</p>
-              <p>7. Once payment is done the amount is non refundable.</p>
+              <p>If you choose online internship the internship program is free. The certificate cost is 300₹.</p>
+              <p>If you choose offline internship the internship program cost is 1000₹ + GST. In this you can choose work based or training based internship.</p>
+              <p>In work based internship you will get an experience letter from the company.</p>
+              <p>In training based internship you will not get an experience letter from the company
+                <p>Payment receipts must be uploaded after completion of the transaction.</p>.</p>
+              <p>By accepting, you confirm that the details entered in the application form are accurate.</p>
             </div>
 
             <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
