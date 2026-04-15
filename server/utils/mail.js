@@ -11,6 +11,18 @@ function getTransportOptions() {
     return null;
   }
 
+  const isGmail = host && host.toLowerCase().includes("gmail.com");
+
+  if (isGmail) {
+    return {
+      service: "gmail",
+      auth: {
+        user,
+        pass
+      }
+    };
+  }
+
   return {
     host,
     port,
@@ -23,9 +35,9 @@ function getTransportOptions() {
     tls: {
       rejectUnauthorized: false
     },
-    connectionTimeout: 10000, // 10 seconds
-    greetingTimeout: 10000,
-    socketTimeout: 15000
+    connectionTimeout: 15000,
+    greetingTimeout: 15000,
+    socketTimeout: 20000
   };
 }
 
@@ -107,7 +119,11 @@ export async function sendApplicationConfirmationEmail({ to, fullName, internshi
     });
     console.log(`[Email] Confirmation email sent successfully to: ${to}`);
   } catch (error) {
-    console.error(`[Email] Error sending email to ${to}:`, error.message);
+    console.error(`[Email] Critical failure sending email to ${to}:`);
+    console.error(`- Error Code: ${error.code}`);
+    console.error(`- Command: ${error.command}`);
+    console.error(`- Response: ${error.response}`);
+    console.error(`- Stack: ${error.stack}`);
     throw error;
   }
 
