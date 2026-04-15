@@ -1,10 +1,9 @@
-import { Link, useSearchParams } from "react-router-dom";
-import { COMPANY_NAME, CERTIFICATE_FEE, formatCurrency } from "../lib/options";
+import { COMPANY_NAME, formatCurrency } from "../lib/options";
 
 export function ScannerPage() {
   const [searchParams] = useSearchParams();
 
-  const amount = Number.parseInt(searchParams.get("amount") || String(CERTIFICATE_FEE), 10) || CERTIFICATE_FEE;
+  const amount = Number.parseInt(searchParams.get("amount") || "300", 10) || 300;
   const internshipTitle = searchParams.get("title") || "Internship application";
   const scannerImageUrl = import.meta.env.VITE_SCANNER_IMAGE || "/scanner.png";
 
