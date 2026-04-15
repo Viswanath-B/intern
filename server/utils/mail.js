@@ -11,33 +11,23 @@ function getTransportOptions() {
     return null;
   }
 
-  const isGmail = host && host.toLowerCase().includes("gmail.com");
-
-  if (isGmail) {
-    return {
-      service: "gmail",
-      auth: {
-        user,
-        pass
-      }
-    };
-  }
-
   return {
-    host,
-    port,
-    secure,
+    host: host || "smtp.gmail.com",
+    port: port,
+    secure: secure, // false for 587, true for 465
     requireTLS: !secure,
     auth: {
       user,
       pass
     },
     tls: {
-      rejectUnauthorized: false
+      rejectUnauthorized: false,
+      minVersion: "TLSv1.2"
     },
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
-    socketTimeout: 20000
+    pool: true,
+    connectionTimeout: 30000, // 30 seconds
+    greetingTimeout: 30000,
+    socketTimeout: 45000
   };
 }
 
