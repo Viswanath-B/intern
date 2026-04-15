@@ -13,6 +13,7 @@ export const LONG_TERM_BASE_FEE = Number(import.meta.env.VITE_LONG_TERM_BASE_FEE
 export const LONG_TERM_FULL_FEE = Number(import.meta.env.VITE_LONG_TERM_FULL_FEE || 3499);
 export const LONG_TERM_ONLINE_FEE = Number(import.meta.env.VITE_LONG_TERM_ONLINE_FEE || 999);
 export const GST_RATE = 0.18;
+export const CERTIFICATE_FEE = 300; // Legacy fallback for older components during deployment
 
 // Removed legacy overrides VITE_BASE_AMOUNT and VITE_FULL_AMOUNT
 
