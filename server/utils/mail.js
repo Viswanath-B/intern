@@ -13,9 +13,8 @@ function getTransportOptions() {
 
   return {
     host: host || "smtp.gmail.com",
-    port: port,
-    secure: secure, // false for 587, true for 465
-    requireTLS: !secure,
+    port: 465, // Use 465 for SSL (more stable on many cloud providers)
+    secure: true, 
     auth: {
       user,
       pass
@@ -24,10 +23,11 @@ function getTransportOptions() {
       rejectUnauthorized: false,
       minVersion: "TLSv1.2"
     },
+    family: 4, // Force IPv4 to avoid IPv6 routing/firewall issues
     pool: true,
-    connectionTimeout: 30000, // 30 seconds
-    greetingTimeout: 30000,
-    socketTimeout: 45000
+    connectionTimeout: 45000, 
+    greetingTimeout: 45000,
+    socketTimeout: 60000
   };
 }
 
