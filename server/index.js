@@ -14,7 +14,11 @@ const dnsServers = (process.env.MONGODB_DNS_SERVERS || "1.1.1.1,8.8.8.8")
   .map((server) => server.trim())
   .filter(Boolean);
 
-dns.setServers(dnsServers);
+try {
+  dns.setServers(dnsServers);
+} catch (dnsError) {
+  console.warn("[DNS] Failed to set custom DNS servers, using system defaults:", dnsError.message);
+}
 
 function startServer() {
   app.listen(port, "0.0.0.0", () => {

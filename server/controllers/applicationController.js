@@ -1,10 +1,9 @@
 import { Application } from "../models/Application.js";
 import { applicationInputSchema, formatZodIssues } from "../validation/applicationSchema.js";
-import { buildPublicFileUrl } from "../utils/publicUrl.js";
 import { applicationsToCsv } from "../utils/csv.js";
 import { sendApplicationConfirmationEmail } from "../utils/mail.js";
 
-const searchableFields = ["fullName", "rollNo", "collegeName", "city", "email", "domain", "role", "internshipMode", "internshipType"];
+const searchableFields = ["fullName", "rollNo", "collegeName", "city", "email", "mobileNumber", "domain", "role", "internshipMode", "internshipType"];
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -53,7 +52,7 @@ export async function createApplication(request, response, next) {
 
     const application = await Application.create({
       ...payload.data,
-      paymentScreenshot: buildPublicFileUrl(request, request.file.filename)
+      paymentScreenshot: request.file.location
     });
 
     // Send confirmation email in the background without blocking the response
@@ -66,7 +65,8 @@ export async function createApplication(request, response, next) {
       role: payload.data.role,
       rollNo: payload.data.rollNo,
       collegeName: payload.data.collegeName,
-      city: payload.data.city
+      city: payload.data.city,
+      mobileNumber: payload.data.mobileNumber
     }).catch((mailError) => {
       console.error("Background confirmation email failed:", mailError.message);
     });
@@ -128,5 +128,46 @@ export async function exportApplications(request, response, next) {
     response.send(csv);
   } catch (error) {
     next(error);
+  }
+}
+
+export async function testEmail(request, response) {
+  const testEmailAddress = request.query.to || process.env.SMTP_USER;
+  
+  try {
+    console.log(`[Test Email] Manually triggering test to: ${testEmailAddress}`);
+    const result = await sendApplicationConfirmationEmail({
+      to: testEmailAddress,
+      fullName: "Test User",
+      internshipType: "short",
+      internshipMode: "online",
+      domain: "Test Domain",
+      role: "Work Based",
+      rollNo: "TEST001",
+      collegeName: "Test College",
+      city: "Test City",
+      mobileNumber: "1234567890"
+    });
+    
+    response.json({
+      success: !result.skipped,
+      driver: result.driver || "none",
+      message: result.skipped 
+        ? "Email sending was skipped. Check your environment variables." 
+        : `Test email sent successfully via ${result.driver} to ${testEmailAddress}. Please check your inbox (including spam).`,
+      config: {
+        using_resend: !!process.env.RESEND_API_KEY,
+        smtp_configured: !!process.env.SMTP_HOST,
+        from: process.env.EMAIL_FROM
+      }
+    });
+  } catch (error) {
+    console.error(`[Test Email] Failed:`, error.message);
+    response.status(500).json({
+      success: false,
+      error: error.message,
+      stack: error.stack,
+      details: "Check server logs for full stack trace."
+    });
   }
 }

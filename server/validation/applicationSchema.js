@@ -29,6 +29,11 @@ export const applicationInputSchema = z.object({
     .max(80, "City name is too long.")
     .regex(lettersAndSpacesPattern, "City should contain only letters and spaces."),
   email: z.string().trim().email("Enter a valid email address.").max(160, "Email is too long."),
+  mobileNumber: z
+    .string()
+    .trim()
+    .length(10, "Mobile number must be exactly 10 digits.")
+    .regex(/^[0-9]+$/, "Mobile number must contain only digits."),
   domain: z.enum(["Full Stack with AI", "Embedded Systems with IoT"], {
     required_error: "Please select a domain."
   }),

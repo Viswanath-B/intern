@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { submitApplication } from "../lib/api";
-import { BASE_AMOUNT_OVERRIDE, CERTIFICATE_FEE, DOMAIN_OPTIONS, FULL_AMOUNT_OVERRIDE, GST_RATE, INTERNSHIP_DETAILS, INTERNSHIP_MODE_OPTIONS, ROLE_OPTIONS, formatCurrency } from "../lib/options";
+import { DOMAIN_OPTIONS, GST_RATE, INTERNSHIP_DETAILS, INTERNSHIP_MODE_OPTIONS, ROLE_OPTIONS, formatCurrency } from "../lib/options";
 import { applicationFormSchema } from "../lib/validation";
 import { PaymentSection } from "./PaymentSection";
 import { ReceiptPreview } from "./ReceiptPreview";
@@ -13,6 +13,7 @@ const defaultValues = {
   collegeName: "",
   city: "",
   email: "",
+  mobileNumber: "",
   domain: DOMAIN_OPTIONS[0].value,
   role: ROLE_OPTIONS[0].value,
   internshipMode: "offline",
@@ -27,6 +28,7 @@ const fieldLabelMap = {
   collegeName: "College / University Name",
   city: "City",
   email: "Email Address",
+  mobileNumber: "Mobile Number",
   domain: "Domain",
   role: "Role",
   internshipMode: "Internship Mode",
@@ -75,15 +77,14 @@ export function ApplicationForm({ internshipType }) {
   const collegeName = watch("collegeName");
   const city = watch("city");
   const email = watch("email");
+  const mobileNumber = watch("mobileNumber");
   const selectedDomain = watch("domain");
   const selectedFormRole = watch("role");
   const selectedFormMode = watch("internshipMode");
   const receiptFiles = watch("paymentScreenshot");
   const selectedReceipt = receiptFiles?.[0] || null;
-  const computedBaseAmount = selectedMode === "online" ? CERTIFICATE_FEE : program.fee;
-  const computedFullAmount = selectedMode === "online" ? CERTIFICATE_FEE : Math.round(program.fee * (1 + GST_RATE));
-  const baseAmount = BASE_AMOUNT_OVERRIDE ?? computedBaseAmount;
-  const fullAmount = FULL_AMOUNT_OVERRIDE ?? computedFullAmount;
+  const baseAmount = selectedMode === "online" ? program.onlineFee : program.baseFee;
+  const fullAmount = selectedMode === "online" ? program.onlineFee : program.fullFee;
   const payableAmount = amountType === "base" ? baseAmount : fullAmount;
   const invalidFields = Object.entries(errors)
     .map(([field, error]) => ({
@@ -139,6 +140,7 @@ export function ApplicationForm({ internshipType }) {
       collegeName,
       city,
       email,
+      mobileNumber,
       domain: selectedDomain,
       role: selectedFormRole,
       internshipMode: selectedFormMode,
@@ -153,6 +155,7 @@ export function ApplicationForm({ internshipType }) {
     collegeName,
     draftReady,
     email,
+    mobileNumber,
     fullName,
     internshipType,
     rollNo,
@@ -160,6 +163,12 @@ export function ApplicationForm({ internshipType }) {
     selectedFormMode,
     selectedFormRole
   ]);
+
+  useEffect(() => {
+    if (selectedMode === "online") {
+      setAmountType("full");
+    }
+  }, [selectedMode]);
 
   useEffect(() => {
     if (!selectedReceipt) {
@@ -196,6 +205,7 @@ export function ApplicationForm({ internshipType }) {
       payload.append("collegeName", formValues.collegeName);
       payload.append("city", formValues.city);
       payload.append("email", formValues.email);
+      payload.append("mobileNumber", formValues.mobileNumber);
       payload.append("domain", formValues.domain);
       payload.append("role", formValues.role);
       payload.append("internshipMode", formValues.internshipMode);
@@ -325,12 +335,31 @@ export function ApplicationForm({ internshipType }) {
           </div>
         </div>
 
-        <div>
-          <label className="field-label" htmlFor="email">
-            Email Address
-          </label>
-          <input id="email" type="email" placeholder="For confirmation email" className={inputClasses} required {...register("email")} />
-          <FieldError error={errors.email} />
+        <div className="grid gap-5 sm:grid-cols-2">
+          <div>
+            <label className="field-label" htmlFor="email">
+              Email Address
+            </label>
+            <input id="email" type="email" placeholder="For confirmation email" className={inputClasses} required {...register("email")} />
+            <FieldError error={errors.email} />
+          </div>
+
+          <div>
+            <label className="field-label" htmlFor="mobileNumber">
+              Mobile Number
+            </label>
+            <input
+              id="mobileNumber"
+              type="tel"
+              placeholder="10-digit number"
+              className={inputClasses}
+              maxLength="10"
+              pattern="[0-9]*"
+              required
+              {...register("mobileNumber")}
+            />
+            <FieldError error={errors.mobileNumber} />
+          </div>
         </div>
 
         <div className="grid gap-5 sm:grid-cols-2">
@@ -351,7 +380,7 @@ export function ApplicationForm({ internshipType }) {
           <div className="rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-900">
             {selectedMode === "online" ? (
               <>
-                Online mode selected. Internship is free and only the certificate fee of {formatCurrency(CERTIFICATE_FEE)} applies.
+                Online mode selected. Internship is free and only the certificate fee of {formatCurrency(program.onlineFee)} applies.
               </>
             ) : (
               <>

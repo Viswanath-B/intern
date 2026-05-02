@@ -13,7 +13,10 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const uploadsDirectory = path.resolve(__dirname, "uploads");
+
+
 const clientBuildDirectory = path.resolve(__dirname, "../client/dist");
+
 const allowedOrigins = (process.env.CLIENT_ORIGIN || "http://localhost:5173")
   .split(",")
   .map((origin) => origin.trim())

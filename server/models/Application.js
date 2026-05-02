@@ -33,6 +33,12 @@ const applicationSchema = new mongoose.Schema(
       lowercase: true,
       maxlength: 160
     },
+    mobileNumber: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 20
+    },
     domain: {
       type: String,
       required: true,

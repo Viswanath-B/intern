@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { buildUpiLink, COMPANY_NAME, CERTIFICATE_FEE, formatCurrency, UPI_ID } from "../lib/options";
+import { buildUpiLink, COMPANY_NAME, formatCurrency, UPI_ID } from "../lib/options";
 
 export function PaymentSection({ amount, baseAmount, fullAmount, amountType, onAmountTypeChange, internshipTitle, internshipMode, isOpen, onToggle }) {
   const qrWrapperRef = useRef(null);
@@ -162,25 +162,27 @@ export function PaymentSection({ amount, baseAmount, fullAmount, amountType, onA
           <h3 className="mt-2 font-display text-xl font-semibold text-slate-950">Scan to Pay</h3>
           <p className="mt-2 max-w-xl text-sm leading-6 text-slate-600">
             {internshipMode === "online"
-              ? `Online mode is free for the internship itself. Pay only the certificate fee of ${formatCurrency(CERTIFICATE_FEE)} using the QR code below or open the UPI deep link in your preferred payment app.`
+              ? `Online mode is free for the internship itself. Pay only the certificate fee of ${formatCurrency(amount)} using the QR code below or open the UPI deep link in your preferred payment app.`
               : "Offline mode includes the program fee plus GST. Pay using the QR code below or open the UPI deep link in your preferred payment app."}
           </p>
         </div>
         <div className="flex flex-col gap-2 sm:items-end">
-          <div className="w-full sm:w-56">
-            <label className="field-label" htmlFor="amountType">
-              Amount Type
-            </label>
-            <select
-              id="amountType"
-              className="field-select"
-              value={amountType}
-              onChange={(event) => onAmountTypeChange(event.target.value)}
-            >
-              <option value="base">Base Amount ({formatCurrency(baseAmount)})</option>
-              <option value="full">Full Amount ({formatCurrency(fullAmount)})</option>
-            </select>
-          </div>
+          {internshipMode === "offline" && (
+            <div className="w-full sm:w-56">
+              <label className="field-label" htmlFor="amountType">
+                Amount Type
+              </label>
+              <select
+                id="amountType"
+                className="field-select"
+                value={amountType}
+                onChange={(event) => onAmountTypeChange(event.target.value)}
+              >
+                <option value="base">Base Amount ({formatCurrency(baseAmount)})</option>
+                <option value="full">Full Amount ({formatCurrency(fullAmount)})</option>
+              </select>
+            </div>
+          )}
 
           <div className="flex flex-wrap gap-2">
             <button type="button" className="secondary-button px-4 py-2 text-sm" onClick={() => setShowTerms(true)}>
@@ -256,8 +258,12 @@ export function PaymentSection({ amount, baseAmount, fullAmount, amountType, onA
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-blue-600">Terms & Conditions</p>
             <h4 className="mt-3 font-display text-2xl font-semibold text-slate-950">Please review before payment</h4>
             <div className="mt-4 space-y-3 text-sm leading-6 text-slate-600">
-              <p>The payment amount shown is the final amount for the selected internship mode.</p>
-              <p>Online mode covers the certificate fee only. Offline mode includes the internship fee plus GST.</p>
+              <p>
+                {internshipMode === "online"
+                  ? `For the online internship, the program is free and only the certificate fee of ${formatCurrency(amount)} applies.`
+                  : `The offline internship program cost is ${formatCurrency(baseAmount)} + GST, totaling ${formatCurrency(fullAmount)}.`}
+              </p>
+              <p>In work-based internships, you will receive an experience letter from the company. Training-based internships focus on skill development.</p>
               <p>Payment receipts must be uploaded after completion of the transaction.</p>
               <p>By accepting, you confirm that the details entered in the application form are accurate.</p>
             </div>

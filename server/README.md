@@ -82,6 +82,8 @@ This will:
 ## API Endpoints
 
 - `POST /api/apply` - save a new internship application
+- `GET /api/applications` - fetch paginated applications from MongoDB (supports `page`, `limit`, `search`, `internshipType`, `role`; requires `x-admin-token` or `Authorization: Bearer <token>`)
+- `GET /api/applications/export` - export filtered application data as CSV (requires `x-admin-token` or `Authorization: Bearer <token>`)
 - `GET /api/health` - health check
 
 ## Environment Variables
@@ -97,6 +99,7 @@ This will:
 - `SHORT_TERM_FEE` - fee for the 2 month internship
 - `LONG_TERM_FEE` - fee for the 4 month internship
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM` - optional email delivery settings
+- `ADMIN_DASHBOARD_TOKEN` - required token to access protected admin endpoints (`/api/applications`, `/api/applications/export`, `/api/test-email`)
 
 ### client/.env
 

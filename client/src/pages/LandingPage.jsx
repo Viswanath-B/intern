@@ -12,6 +12,11 @@ const quickActions = [
     to: "/apply/long-term",
     className: "bg-gradient-to-r from-rose-500 to-red-600 text-white shadow-red-300/50"
   },
+  {
+    label: "View Applications",
+    to: "/applications",
+    className: "bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-300/50"
+  },
 ];
 
 const timerBlocks = ["DAYS", "HOURS", "MINS", "SECS"];
@@ -32,7 +37,7 @@ export function LandingPage() {
 
           <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col items-center justify-center text-center">
             <p className="inline-flex rounded-full border border-sky-200 bg-sky-100/70 px-5 py-2 text-sm font-semibold uppercase tracking-[0.2em] text-sky-700">
-              Learning Managemant System
+              Learning Management System
             </p>
 
             <h1 className="mt-7 font-display text-5xl font-bold tracking-tight text-slate-900 sm:text-6xl lg:text-7xl">
@@ -45,7 +50,7 @@ export function LandingPage() {
               A premium internship experience with guided project execution, elite mentorship, and industry-focused outcomes.
             </p>
 
-            
+
 
             <div className="mx-auto mt-10 flex max-w-4xl flex-wrap items-center justify-center gap-3">
               {quickActions.map((action) => (

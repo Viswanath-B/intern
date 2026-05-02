@@ -4,24 +4,19 @@ export const CONTACT_PHONE = import.meta.env.VITE_CONTACT_PHONE || "+91 63057 95
 export const CONTACT_PHONE1 = import.meta.env.VITE_CONTACT_PHONE1 || "+91 73867 89578";
 export const UPI_ID = import.meta.env.VITE_UPI_ID || "spheronixlabs@upi";
 export const UPI_PAYEE_NAME = import.meta.env.VITE_UPI_PAYEE_NAME || COMPANY_NAME;
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const configuredApiBase = import.meta.env.VITE_API_BASE_URL?.trim();
+export const API_BASE_URL = import.meta.env.DEV ? "/api" : configuredApiBase || "/api";
 export const SERVER_PORT = Number(import.meta.env.VITE_SERVER_PORT || 5000);   
-export const SHORT_TERM_FEE = Number(import.meta.env.VITE_SHORT_TERM_FEE || 1999);
-export const LONG_TERM_FEE = Number(import.meta.env.VITE_LONG_TERM_FEE || 3499);
-export const CERTIFICATE_FEE = 300;
+export const SHORT_TERM_BASE_FEE = Number(import.meta.env.VITE_SHORT_TERM_BASE_FEE || 1694);
+export const SHORT_TERM_FULL_FEE = Number(import.meta.env.VITE_SHORT_TERM_FULL_FEE || 1999);
+export const SHORT_TERM_ONLINE_FEE = Number(import.meta.env.VITE_SHORT_TERM_ONLINE_FEE || 300);
+export const LONG_TERM_BASE_FEE = Number(import.meta.env.VITE_LONG_TERM_BASE_FEE || 2965);
+export const LONG_TERM_FULL_FEE = Number(import.meta.env.VITE_LONG_TERM_FULL_FEE || 3499);
+export const LONG_TERM_ONLINE_FEE = Number(import.meta.env.VITE_LONG_TERM_ONLINE_FEE || 999);
 export const GST_RATE = 0.18;
+export const CERTIFICATE_FEE = 300; // Legacy fallback for older components during deployment
 
-function parseOptionalAmount(value) {
-  if (value === undefined || value === null || String(value).trim() === "") {
-    return null;
-  }
-
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-export const BASE_AMOUNT_OVERRIDE = parseOptionalAmount(import.meta.env.VITE_BASE_AMOUNT);
-export const FULL_AMOUNT_OVERRIDE = parseOptionalAmount(import.meta.env.VITE_FULL_AMOUNT);
+// Removed legacy overrides VITE_BASE_AMOUNT and VITE_FULL_AMOUNT
 
 export const INTERNSHIP_MODE_OPTIONS = [
   { label: "Online", value: "online" },
@@ -36,7 +31,7 @@ export const DOMAIN_OPTIONS = [
 export const SERVER_ORIGIN =
   import.meta.env.VITE_SERVER_ORIGIN ||
   (typeof window !== "undefined"
-    ? `${window.location.protocol}//${window.location.hostname}:${SERVER_PORT}`
+    ? window.location.origin
     : `http://localhost:${SERVER_PORT}`);
 
 export const BRAND_LOGO_URL = import.meta.env.VITE_BRAND_LOGO_URL || `${SERVER_ORIGIN}/logo.jpeg`;
@@ -52,7 +47,9 @@ export const INTERNSHIP_DETAILS = {
     slug: "short-term",
     title: "Short-Term Internship",
     duration: "2 months",
-    fee: SHORT_TERM_FEE,
+    baseFee: SHORT_TERM_BASE_FEE,
+    fullFee: SHORT_TERM_FULL_FEE,
+    onlineFee: SHORT_TERM_ONLINE_FEE,
     route: "/apply/short-term",
     accent: "from-cyan-500 via-blue-500 to-indigo-600",
     summary:
@@ -63,7 +60,9 @@ export const INTERNSHIP_DETAILS = {
     slug: "long-term",
     title: "Long-Term Internship",
     duration: "4 months",
-    fee: LONG_TERM_FEE,
+    baseFee: LONG_TERM_BASE_FEE,
+    fullFee: LONG_TERM_FULL_FEE,
+    onlineFee: LONG_TERM_ONLINE_FEE,
     route: "/apply/long-term",
     accent: "from-indigo-600 via-blue-600 to-sky-500",
     summary:
@@ -72,11 +71,13 @@ export const INTERNSHIP_DETAILS = {
 };
 
 export function calculatePayableAmount({ internshipMode, internshipType }) {
+  const details = INTERNSHIP_DETAILS[internshipType];
+
   if (internshipMode === "online") {
-    return CERTIFICATE_FEE;
+    return details?.onlineFee || 300;
   }
 
-  const baseAmount = INTERNSHIP_DETAILS[internshipType]?.fee || SHORT_TERM_FEE;
+  const baseAmount = details?.baseFee || SHORT_TERM_BASE_FEE;
   return Math.round(baseAmount * (1 + GST_RATE));
 }
 

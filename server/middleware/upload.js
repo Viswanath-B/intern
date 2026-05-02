@@ -1,9 +1,15 @@
-import fs from "fs";
-import path from "path";
+import { S3Client } from "@aws-sdk/client-s3";
 import multer from "multer";
+import multerS3 from "multer-s3";
 
-const uploadDirectory = path.resolve(process.cwd(), "uploads");
-fs.mkdirSync(uploadDirectory, { recursive: true });
+// Configure S3 Client
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  },
+});
 
 const allowedMimeTypes = new Set([
   "image/jpeg",
@@ -13,15 +19,19 @@ const allowedMimeTypes = new Set([
   "application/pdf"
 ]);
 
-const storage = multer.diskStorage({
-  destination(request, file, callback) {
-    callback(null, uploadDirectory);
+const storage = multerS3({
+  s3: s3,
+  bucket: process.env.AWS_BUCKET_NAME,
+  metadata: function (req, file, cb) {
+    cb(null, { fieldName: file.fieldname });
   },
-  filename(request, file, callback) {
-    const safeFileName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, "_");
-    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}-${safeFileName}`;
-    callback(null, uniqueName);
-  }
+  key: function (req, file, cb) {
+    const isPdf = file.mimetype === "application/pdf";
+    const folder = "internship-applications/";
+    const filename = `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.]/g, "_")}`;
+    cb(null, folder + filename);
+  },
+  contentType: multerS3.AUTO_CONTENT_TYPE,
 });
 
 function fileFilter(request, file, callback) {
