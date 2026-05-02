@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const lettersAndSpacesPattern = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
+const lettersAndSpacesPattern = /^[A-Za-z0-9\s.,'()&-]+$/;
 const rollNumberPattern = /^[A-Za-z0-9/-]+$/;
 
 export const applicationInputSchema = z.object({
@@ -45,6 +45,10 @@ export const applicationInputSchema = z.object({
   }),
   internshipType: z.enum(["short", "long"], {
     required_error: "Please select an internship type."
+  }),
+  amount: z.coerce.number({
+    required_error: "Amount is required.",
+    invalid_type_error: "Amount must be a number."
   })
 });
 
