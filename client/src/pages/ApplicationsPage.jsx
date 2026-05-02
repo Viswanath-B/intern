@@ -343,6 +343,9 @@ export function ApplicationsPage() {
                       <p>
                         <span className="font-semibold text-slate-900">Amount Paid:</span> {new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(application.amount || 0)}
                       </p>
+                      <p>
+                        <span className="font-semibold text-slate-900">Payment Mode:</span> {application.amountType === "base" ? "Base Amount" : "Full Amount"}
+                      </p>
                     </div>
 
                     <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
