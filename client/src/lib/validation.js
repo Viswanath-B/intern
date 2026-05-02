@@ -4,7 +4,7 @@ import { DOMAIN_OPTIONS, INTERNSHIP_MODE_OPTIONS, ROLE_OPTIONS } from "./options
 const domainValues = DOMAIN_OPTIONS.map((option) => option.value);
 const modeValues = INTERNSHIP_MODE_OPTIONS.map((option) => option.value);
 const roleValues = ROLE_OPTIONS.map((option) => option.value);
-const lettersAndSpacesPattern = /^[A-Za-z]+(?: [A-Za-z]+)*$/;
+const lettersAndSpacesPattern = /^[A-Za-z0-9\s.,'()&-]+$/;
 const rollNumberPattern = /^[A-Za-z0-9/-]+$/;
 const receiptSchema =
   typeof FileList !== "undefined"
