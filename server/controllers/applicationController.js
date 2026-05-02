@@ -131,20 +131,16 @@ export async function listApplications(request, response, next) {
                       // Offline Base cases
                       {
                         case: { $and: [{ $eq: ["$internshipMode", "offline"] }, { $eq: ["$internshipType", "short"] }, { $eq: ["$amountType", "base"] }] },
-                        then: PRICING.short.base
+                        then: 500
                       },
                       {
                         case: { $and: [{ $eq: ["$internshipMode", "offline"] }, { $eq: ["$internshipType", "long"] }, { $eq: ["$amountType", "base"] }] },
-                        then: PRICING.long.base
+                        then: 500
                       },
-                      // Offline Full cases (Default)
+                      // Offline Full cases (Default for legacy where amount is missing)
                       {
-                        case: { $and: [{ $eq: ["$internshipMode", "offline"] }, { $eq: ["$internshipType", "short"] }] },
-                        then: PRICING.short.full
-                      },
-                      {
-                        case: { $and: [{ $eq: ["$internshipMode", "offline"] }, { $eq: ["$internshipType", "long"] }] },
-                        then: PRICING.long.full
+                        case: { $and: [{ $eq: ["$internshipMode", "offline"] }] },
+                        then: 500
                       }
                     ],
                     default: 0
@@ -168,15 +164,16 @@ export async function listApplications(request, response, next) {
       let estimated = 0;
       const type = app.internshipType;
       const mode = app.internshipMode;
-      const amtType = app.amountType || "full";
+      const amtType = app.amountType || "base"; // Default legacy to base amount
 
       if (mode === "online") {
         estimated = PRICING[type]?.online || 0;
       } else {
-        estimated = amtType === "base" ? PRICING[type]?.base : PRICING[type]?.full;
+        // User requested 500 for old applications
+        estimated = 500;
       }
 
-      return { ...app, amount: estimated || 0 };
+      return { ...app, amount: estimated, amountType: amtType };
     });
 
     response.json({
