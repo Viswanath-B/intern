@@ -28,6 +28,7 @@ export const applicationInputSchema = z.object({
     .min(2, "City is required.")
     .max(80, "City name is too long.")
     .regex(lettersAndSpacesPattern, "City should contain only letters and spaces."),
+  amountType: z.enum(["base", "full"]).optional(),
   email: z.string().trim().email("Enter a valid email address.").max(160, "Email is too long."),
   mobileNumber: z
     .string()
