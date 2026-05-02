@@ -47,7 +47,7 @@ export function ApplicationsPage() {
   const [adminTokenInput, setAdminTokenInput] = useState("");
   const [applications, setApplications] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, pages: 1, total: 0, limit: PAGE_SIZE });
-  const [summary, setSummary] = useState({ total: 0, shortCount: 0, longCount: 0, workBasedCount: 0, trainingBasedCount: 0 });
+  const [summary, setSummary] = useState({ total: 0, shortCount: 0, longCount: 0, workBasedCount: 0, trainingBasedCount: 0, totalRevenue: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchInput, setSearchInput] = useState("");
@@ -90,7 +90,8 @@ export function ApplicationsPage() {
             shortCount: 0,
             longCount: 0,
             workBasedCount: 0,
-            trainingBasedCount: 0
+            trainingBasedCount: 0,
+            totalRevenue: 0
           }
         );
       } catch (requestError) {
@@ -191,7 +192,7 @@ export function ApplicationsPage() {
     setAdminTokenInput("");
     setApplications([]);
     setPagination({ page: 1, pages: 1, total: 0, limit: PAGE_SIZE });
-    setSummary({ total: 0, shortCount: 0, longCount: 0, workBasedCount: 0, trainingBasedCount: 0 });
+    setSummary({ total: 0, shortCount: 0, longCount: 0, workBasedCount: 0, trainingBasedCount: 0, totalRevenue: 0 });
   }
 
   if (!adminToken) {
@@ -256,8 +257,9 @@ export function ApplicationsPage() {
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-6">
           <SummaryCard label="Total" value={summary.total} />
+          <SummaryCard label="Total Amount" value={new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(summary.totalRevenue || 0)} />
           <SummaryCard label="Short-Term" value={summary.shortCount} />
           <SummaryCard label="Long-Term" value={summary.longCount} />
           <SummaryCard label="Work Based" value={summary.workBasedCount} />
