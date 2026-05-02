@@ -52,6 +52,7 @@ app.use(
   })
 );
 app.use("/uploads", express.static(uploadsDirectory, { maxAge: "1d" }));
+app.use("/scanner", express.static(path.resolve(__dirname, "scanner"), { maxAge: "30d" }));
 app.get("/logo.jpeg", (request, response) => {
   response.sendFile(path.resolve(__dirname, "logo.jpeg"));
 });
