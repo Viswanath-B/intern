@@ -52,7 +52,8 @@ export async function createApplication(request, response, next) {
 
     const application = await Application.create({
       ...payload.data,
-      paymentScreenshot: request.file.location
+      paymentScreenshot: request.file.location,
+      amount: payload.data.amount
     });
 
     // Send confirmation email in the background without blocking the response
@@ -86,15 +87,21 @@ export async function listApplications(request, response, next) {
     const limit = Math.min(Math.max(Number.parseInt(request.query.limit || "12", 10) || 12, 1), 100);
     const filter = buildFilter(request.query);
 
-    const [applications, filteredTotal, overallTotal, shortCount, longCount, workBasedCount, trainingBasedCount] = await Promise.all([
+    const [applications, filteredTotal, overallTotal, shortCount, longCount, workBasedCount, trainingBasedCount, revenueResult] = await Promise.all([
       Application.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
       Application.countDocuments(filter),
       Application.countDocuments(),
       Application.countDocuments({ internshipType: "short" }),
       Application.countDocuments({ internshipType: "long" }),
       Application.countDocuments({ role: "Work Based" }),
-      Application.countDocuments({ role: "Training Based" })
+      Application.countDocuments({ role: "Training Based" }),
+      Application.aggregate([
+        { $match: filter },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ])
     ]);
+    
+    const totalRevenue = revenueResult[0]?.total || 0;
 
     response.json({
       applications,
@@ -109,7 +116,8 @@ export async function listApplications(request, response, next) {
         shortCount,
         longCount,
         workBasedCount,
-        trainingBasedCount
+        trainingBasedCount,
+        totalRevenue
       }
     });
   } catch (error) {
