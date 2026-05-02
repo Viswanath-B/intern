@@ -340,6 +340,9 @@ export function ApplicationsPage() {
                       <p>
                         <span className="font-semibold text-slate-900">Role:</span> {application.role}
                       </p>
+                      <p>
+                        <span className="font-semibold text-slate-900">Amount Paid:</span> {new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(application.amount || 0)}
+                      </p>
                     </div>
 
                     <div className="mt-4 overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
