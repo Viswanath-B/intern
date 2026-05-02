@@ -211,6 +211,7 @@ export function ApplicationForm({ internshipType }) {
       payload.append("internshipMode", formValues.internshipMode);
       payload.append("internshipType", internshipType);
       payload.append("amount", String(payableAmount));
+      payload.append("amountType", amountType);
       payload.append("paymentScreenshot", uploadedReceipt);
 
       const response = await submitApplication(payload);
