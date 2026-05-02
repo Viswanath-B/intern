@@ -97,14 +97,61 @@ export async function listApplications(request, response, next) {
       Application.countDocuments({ role: "Training Based" }),
       Application.aggregate([
         { $match: filter },
-        { $group: { _id: null, total: { $sum: "$amount" } } }
+        {
+          $addFields: {
+            calculatedAmount: {
+              $ifNull: [
+                "$amount",
+                {
+                  $switch: {
+                    branches: [
+                      {
+                        case: { $and: [{ $eq: ["$internshipType", "short"] }, { $eq: ["$internshipMode", "online"] }] },
+                        then: 300
+                      },
+                      {
+                        case: { $and: [{ $eq: ["$internshipType", "short"] }, { $eq: ["$internshipMode", "offline"] }] },
+                        then: 1999
+                      },
+                      {
+                        case: { $and: [{ $eq: ["$internshipType", "long"] }, { $eq: ["$internshipMode", "online"] }] },
+                        then: 999
+                      },
+                      {
+                        case: { $and: [{ $eq: ["$internshipType", "long"] }, { $eq: ["$internshipMode", "offline"] }] },
+                        then: 3499
+                      }
+                    ],
+                    default: 0
+                  }
+                }
+              ]
+            }
+          }
+        },
+        { $group: { _id: null, total: { $sum: "$calculatedAmount" } } }
       ])
     ]);
     
     const totalRevenue = revenueResult[0]?.total || 0;
 
+    const applicationsWithAmount = applications.map((app) => {
+      if (typeof app.amount === "number") {
+        return app;
+      }
+
+      let estimated = 0;
+      if (app.internshipType === "short") {
+        estimated = app.internshipMode === "online" ? 300 : 1999;
+      } else if (app.internshipType === "long") {
+        estimated = app.internshipMode === "online" ? 999 : 3499;
+      }
+
+      return { ...app, amount: estimated };
+    });
+
     response.json({
-      applications,
+      applications: applicationsWithAmount,
       pagination: {
         page,
         limit,
