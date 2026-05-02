@@ -87,6 +87,20 @@ export async function listApplications(request, response, next) {
     const limit = Math.min(Math.max(Number.parseInt(request.query.limit || "12", 10) || 12, 1), 100);
     const filter = buildFilter(request.query);
 
+    // Define pricing from environment variables or defaults
+    const PRICING = {
+      short: {
+        base: Number(process.env.SHORT_TERM_BASE_FEE) || 4236,
+        full: Number(process.env.SHORT_TERM_FULL_FEE) || 4999,
+        online: Number(process.env.SHORT_TERM_ONLINE_FEE) || 300
+      },
+      long: {
+        base: Number(process.env.LONG_TERM_BASE_FEE) || 27966,
+        full: Number(process.env.LONG_TERM_FULL_FEE) || 33000,
+        online: Number(process.env.LONG_TERM_ONLINE_FEE) || 999
+      }
+    };
+
     const [applications, filteredTotal, overallTotal, shortCount, longCount, workBasedCount, trainingBasedCount, revenueResult] = await Promise.all([
       Application.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
       Application.countDocuments(filter),
@@ -105,21 +119,32 @@ export async function listApplications(request, response, next) {
                 {
                   $switch: {
                     branches: [
+                      // Online cases
                       {
-                        case: { $and: [{ $eq: ["$internshipType", "short"] }, { $eq: ["$internshipMode", "online"] }] },
-                        then: 300
+                        case: { $and: [{ $eq: ["$internshipMode", "online"] }, { $eq: ["$internshipType", "short"] }] },
+                        then: PRICING.short.online
                       },
                       {
-                        case: { $and: [{ $eq: ["$internshipType", "short"] }, { $eq: ["$internshipMode", "offline"] }] },
-                        then: 1999
+                        case: { $and: [{ $eq: ["$internshipMode", "online"] }, { $eq: ["$internshipType", "long"] }] },
+                        then: PRICING.long.online
+                      },
+                      // Offline Base cases
+                      {
+                        case: { $and: [{ $eq: ["$internshipMode", "offline"] }, { $eq: ["$internshipType", "short"] }, { $eq: ["$amountType", "base"] }] },
+                        then: PRICING.short.base
                       },
                       {
-                        case: { $and: [{ $eq: ["$internshipType", "long"] }, { $eq: ["$internshipMode", "online"] }] },
-                        then: 999
+                        case: { $and: [{ $eq: ["$internshipMode", "offline"] }, { $eq: ["$internshipType", "long"] }, { $eq: ["$amountType", "base"] }] },
+                        then: PRICING.long.base
+                      },
+                      // Offline Full cases (Default)
+                      {
+                        case: { $and: [{ $eq: ["$internshipMode", "offline"] }, { $eq: ["$internshipType", "short"] }] },
+                        then: PRICING.short.full
                       },
                       {
-                        case: { $and: [{ $eq: ["$internshipType", "long"] }, { $eq: ["$internshipMode", "offline"] }] },
-                        then: 3499
+                        case: { $and: [{ $eq: ["$internshipMode", "offline"] }, { $eq: ["$internshipType", "long"] }] },
+                        then: PRICING.long.full
                       }
                     ],
                     default: 0
@@ -136,18 +161,22 @@ export async function listApplications(request, response, next) {
     const totalRevenue = revenueResult[0]?.total || 0;
 
     const applicationsWithAmount = applications.map((app) => {
-      if (typeof app.amount === "number") {
+      if (typeof app.amount === "number" && app.amount > 0) {
         return app;
       }
 
       let estimated = 0;
-      if (app.internshipType === "short") {
-        estimated = app.internshipMode === "online" ? 300 : 1999;
-      } else if (app.internshipType === "long") {
-        estimated = app.internshipMode === "online" ? 999 : 3499;
+      const type = app.internshipType;
+      const mode = app.internshipMode;
+      const amtType = app.amountType || "full";
+
+      if (mode === "online") {
+        estimated = PRICING[type]?.online || 0;
+      } else {
+        estimated = amtType === "base" ? PRICING[type]?.base : PRICING[type]?.full;
       }
 
-      return { ...app, amount: estimated };
+      return { ...app, amount: estimated || 0 };
     });
 
     response.json({
